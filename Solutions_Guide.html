@@ -1,0 +1,603 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>AIML | Practicals 01–12</title><style>body{margin:0;background:#eef2f6;color:#172536;font:16px/1.6 system-ui,sans-serif}header{background:#122d45;color:white;padding:50px max(5vw,24px)}header p{color:#bad4e6}main{max-width:1100px;margin:auto;padding:24px}nav{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px}a{color:#125777}section{background:white;padding:30px;margin:24px 0;border-radius:10px;border-top:4px solid #168c94}h2{line-height:1.3}.notes{white-space:pre-wrap;font:inherit}.code{white-space:pre-wrap;overflow-wrap:anywhere;background:#13283b;color:#d9f4f1;padding:22px;border-radius:8px;font:14px/1.55 monospace}@media print{body{background:white}header{padding:15px;color:#172536;background:white}header p{color:#172536}nav{display:none}section{break-before:page;margin:0;padding:0;border:0}.code{color:black;background:#f3f3f3}}</style><header><p>INTRODUCTION TO ARTIFICIAL INTELLIGENCE & MACHINE LEARNING</p><h1>Practical solutions 01–12</h1><p>Knowledge bases · Search · Optimization · Constraints</p></header><main><section><h2>Read before running</h2><pre class="notes"># AIML practical solutions — 1 to 12
+
+Based on rows 2–13 of the **Practicals** worksheet in `Intro to AIML _Practicals_Tutorials_Unitwise_Updated 21 Sep.xlsx`. Tutorials and practicals 13 onward are outside this package.
+
+## Start here
+1. Extract the entire ZIP folder.
+2. Use a SWI-Prolog installation for the `solution.pl` files. No Python packages are needed to run the practicals.
+3. Open one practical folder and read `README.md`, or open `Solutions_Guide.html` in a browser for all solutions in one printable guide.
+4. Start SWI-Prolog, load `[&#x27;solution.pl&#x27;].`, then enter the sample goals. Alternatively run `swipl -q -s solution.pl` from that folder.
+5. Load each practical in a **fresh Prolog session**. Independent exercises intentionally reuse predicate names, especially 7/8 and 9/10.
+6. Exit with `halt.`. Prolog atoms start lowercase; variables start uppercase; each query ends in a period.
+
+## Visual Prolog compatibility
+The workbook explicitly names Visual Prolog for practicals 1 and 4 and refers to Domains, Predicates, Clauses and Goals. Those folders include `classic_visual_prolog.pro` using the legacy 5.x-style sections. Their failure-driven goal prints every answer and then fails intentionally. Modern Visual Prolog uses project/class structures and cannot directly compile these legacy files. The `solution.pl` editions use SWI-Prolog and cannot be passed unchanged to Visual Prolog. Confirm your lab&#x27;s compiler version if Visual Prolog submission is mandatory.
+
+## Data and output conventions
+All sample facts, score thresholds, graphs and numerical objectives were chosen for these solutions because the workbook supplies tasks rather than datasets. Sample results are expected logical answers, not captured execution logs. Prolog may show different spacing or additional `true`/`false` prompts. Practical 10 is stochastic and deliberately does not invent exact measured outputs.
+
+## Verification
+No Prolog executable was available in the preparation environment; these programs were reviewed but not executed here. `verify.py` runs the supplied behavioral checks in separate SWI-Prolog processes when Python 3 and `swipl` are available. Run `python verify.py` from this extracted folder. It checks boundary cases, search costs, CSP counts and annealing invariants; it does not require annealing to reach the global optimum. Legacy Visual Prolog files require their own compiler and are not covered by that script.
+
+## Contents
+- **01** — Create a simple Knowledge Base using facts, predicates, clauses, and goals (Student-Course Database) (`01_Student_Course_Knowledge_Base`)
+- **02** — Implement arithmetic operations, Factorial, and Fibonacci Series using recursion (`02_Arithmetic_Factorial_Fibonacci`)
+- **03** — Perform append, reverse, member search, and list length operations (`03_List_Operations`)
+- **04** — Develop a timetable database and answer queries regarding faculty, subjects, and classrooms (`04_College_Timetable`)
+- **05** — Classify students as topper, average, and fail using rule-based reasoning (`05_Student_Performance`)
+- **06** — Implement Breadth-First Search (BFS) to find the shortest path in a graph (`06_Breadth_First_Search`)
+- **07** — Implement Greedy Best-First Search using a heuristic function to find a path in a graph (`07_Greedy_Best_First_Search`)
+- **08** — Implement the A* Search algorithm to find the optimal path using path cost and heuristic estimate (`08_A_Star_Search`)
+- **09** — Implement Hill Climbing for optimization problems (`09_Hill_Climbing`)
+- **10** — Solve an optimization problem using Simulated Annealing to escape local optima (`10_Simulated_Annealing`)
+- **11** — Represent a Map-Coloring problem as a CSP and solve it using backtracking search (`11_Map_Coloring_CSP`)
+- **12** — Solve the N-Queens problem using backtracking to satisfy CSP constraints (`12_N_Queens_CSP`)
+</pre></section><nav><a href="#p1">01 · Student Course Knowledge Base</a><a href="#p2">02 · Arithmetic Factorial Fibonacci</a><a href="#p3">03 · List Operations</a><a href="#p4">04 · College Timetable</a><a href="#p5">05 · Student Performance</a><a href="#p6">06 · Breadth First Search</a><a href="#p7">07 · Greedy Best First Search</a><a href="#p8">08 · A Star Search</a><a href="#p9">09 · Hill Climbing</a><a href="#p10">10 · Simulated Annealing</a><a href="#p11">11 · Map Coloring CSP</a><a href="#p12">12 · N Queens CSP</a></nav><section id="p1"><h2>01 · Create a simple Knowledge Base using facts, predicates, clauses, and goals (Student-Course Database)</h2><pre class="notes"># Practical 1: Create a simple Knowledge Base using facts, predicates, clauses, and goals (Student-Course Database)
+
+## Assignment
+Experiment 1: Write a basic Visual Prolog program to define a simple Knowledge Base of facts (e.g., student-course enrollment or a &quot;likes&quot; relationship database) to understand the core structure of Domains, Predicates, Clauses, and Goals.
+
+## Aim and concept
+Facts store students, courses, enrollment and teachers. A predicate describes a relation; a clause is a fact or rule; a goal asks whether a relation holds. Variables begin with uppercase letters. Rules combine facts through unification and backtracking.
+
+## Algorithm
+1. Define students and courses.
+2. Add enrollment and teaching facts.
+3. Join facts with shared variables to derive classmates and teachers.
+4. Query the knowledge base.
+
+## Run
+Open SWI-Prolog in this folder and enter `[&#x27;solution.pl&#x27;].` Then run the queries below. The `?-` is the console prompt; do not type it twice. Press `;` for more answers or Enter to stop.
+
+## Sample queries and expected results
+```prolog
+?- enrolled(amit, C).
+C = ai ; C = python.
+?- classmate(amit, X).
+X = rahul.
+?- student_teacher(neha, T).
+T = rao.
+?- enrolled(neha, ai).
+false.
+```
+
+## Result
+Enrollment and derived relationships can be retrieved without procedural database loops.
+
+## Assumptions and limitations
+Sample names/data are illustrative. A pair of classmates may be returned more than once if they share several courses; use setof/3 to remove duplicates. classic_visual_prolog.pro supplies the requested Domains/Predicates/Clauses/Goal structure for legacy Visual Prolog. It is not SWI syntax or a modern Visual Prolog project.
+</pre><h3>Complete SWI-Prolog source</h3><pre class="code">student(amit). student(neha). student(rahul).
+course(ai). course(database). course(python).
+enrolled(amit, ai). enrolled(amit, python).
+enrolled(neha, database). enrolled(rahul, ai).
+teaches(mehta, ai). teaches(rao, database). teaches(sen, python).
+classmate(X,Y) :- enrolled(X,C), enrolled(Y,C), dif(X,Y).
+student_teacher(S,T) :- enrolled(S,C), teaches(T,C).</pre></section><section id="p2"><h2>02 · Implement arithmetic operations, Factorial, and Fibonacci Series using recursion</h2><pre class="notes"># Practical 2: Implement arithmetic operations, Factorial, and Fibonacci Series using recursion
+
+## Assignment
+Experiment 2: Implement a Prolog program to demonstrate basic arithmetic operations, finding the Factorial of a number, and generating the Fibonacci series.
+
+## Aim and concept
+Recursion reduces a problem to a smaller instance until a base case is reached. Factorial uses N! = N × (N−1)! and 0! = 1. Fibonacci uses F(0)=0, F(1)=1. Accumulators avoid recomputing earlier Fibonacci values.
+
+## Algorithm
+1. Evaluate arithmetic with is/2.
+2. Guard division against zero.
+3. Recursively multiply for factorial.
+4. Carry the previous two terms for Fibonacci.
+
+## Run
+Open SWI-Prolog in this folder and enter `[&#x27;solution.pl&#x27;].` Then run the queries below. The `?-` is the console prompt; do not type it twice. Press `;` for more answers or Enter to stop.
+
+## Sample queries and expected results
+```prolog
+?- arithmetic(10,3,S,D,P).
+S = 13, D = 7, P = 30.
+?- quotient(10,4,Q).
+Q = 2.5.
+?- quotient(10,0,_).
+false.
+?- factorial(5,F).
+F = 120.
+?- fibonacci(7,F).
+F = 13.
+?- fibonacci_series(8,L).
+L = [0,1,1,2,3,5,8,13].
+?- factorial(-1,_).
+false.
+```
+
+## Result
+The program computes arithmetic values, factorials and a series of N Fibonacci terms.
+
+## Assumptions and limitations
+N must be a bound nonnegative integer. Invalid arguments fail. These arithmetic predicates calculate forward; they do not solve for unknown inputs. Factorial uses linear recursion; Fibonacci runs in O(N) arithmetic steps.
+</pre><h3>Complete SWI-Prolog source</h3><pre class="code">% Arithmetic predicates expect instantiated numbers.
+arithmetic(A,B,Sum,Difference,Product) :-
+    number(A), number(B), Sum is A+B, Difference is A-B, Product is A*B.
+quotient(A,B,Q) :- number(A), number(B), B =\= 0, Q is A/B.
+factorial(N,F) :- integer(N), N &gt;= 0, fact(N,F).
+fact(0,1).
+fact(N,F) :- N &gt; 0, M is N-1, fact(M,G), F is N*G.
+fibonacci(N,F) :- integer(N), N &gt;= 0, fib(N,0,1,F).
+fib(0,A,_,A).
+fib(N,A,B,F) :- N &gt; 0, M is N-1, C is A+B, fib(M,B,C,F).
+% N is the number of terms, starting with F(0)=0.
+fibonacci_series(N,L) :- integer(N), N &gt;= 0, series(N,0,1,L).
+series(0,_,_,[]).
+series(N,A,B,[A|T]) :- N &gt; 0, M is N-1, C is A+B, series(M,B,C,T).</pre></section><section id="p3"><h2>03 · Perform append, reverse, member search, and list length operations</h2><pre class="notes"># Practical 3: Perform append, reverse, member search, and list length operations
+
+## Assignment
+Experiment 3: Write a Prolog program to perform list manipulation operations (appending two lists, reversing a list, and searching for an element).
+
+## Aim and concept
+Lists consist of a head and tail, written [H|T]. Structural recursion processes one element at a time. The empty list is the base case. An accumulator makes reversal linear in list length.
+
+## Algorithm
+1. Append by copying heads from the first list.
+2. Reverse by moving each head to an accumulator.
+3. Match the head or search the tail for membership.
+4. Add one per element for length.
+
+## Run
+Open SWI-Prolog in this folder and enter `[&#x27;solution.pl&#x27;].` Then run the queries below. The `?-` is the console prompt; do not type it twice. Press `;` for more answers or Enter to stop.
+
+## Sample queries and expected results
+```prolog
+?- my_append([1,2],[3,4],R).
+R = [1,2,3,4].
+?- my_reverse([a,b,c],R).
+R = [c,b,a].
+?- my_member(b,[a,b,c]).
+true.
+?- my_member(z,[a,b,c]).
+false.
+?- my_length([a,b,c],N).
+N = 3.
+?- my_reverse([],R).
+R = [].
+```
+
+## Result
+Append, reverse, member search and list length are implemented without calling their built-in equivalents.
+
+## Assumptions and limitations
+Use finite proper lists. my_length/2 is intended for a supplied list, not generation from a length. Membership can return multiple proofs for repeated elements.
+</pre><h3>Complete SWI-Prolog source</h3><pre class="code">my_append([],L,L).
+my_append([H|T],L,[H|R]) :- my_append(T,L,R).
+my_reverse(L,R) :- reverse_acc(L,[],R).
+reverse_acc([],A,A).
+reverse_acc([H|T],A,R) :- reverse_acc(T,[H|A],R).
+my_member(X,[X|_]).
+my_member(X,[_|T]) :- my_member(X,T).
+my_length([],0).
+my_length([_|T],N) :- my_length(T,M), N is M+1.</pre></section><section id="p4"><h2>04 · Develop a timetable database and answer queries regarding faculty, subjects, and classrooms</h2><pre class="notes"># Practical 4: Develop a timetable database and answer queries regarding faculty, subjects, and classrooms
+
+## Assignment
+Experiment 4: Develop a Visual Prolog program to represent a College Timetable Knowledge Base and answer queries about faculty, subjects, and classrooms.
+
+## Aim and concept
+A timetable is a relation over day, time, subject, teacher and room. Query patterns retrieve selected columns. Negation-as-failure means a slot is considered free when no matching booking is recorded.
+
+## Algorithm
+1. Store timetable facts.
+2. Write faculty and subject lookup rules.
+3. Enumerate known rooms/days/times before testing absence of a booking.
+4. Run queries for the requested schedule.
+
+## Run
+Open SWI-Prolog in this folder and enter `[&#x27;solution.pl&#x27;].` Then run the queries below. The `?-` is the console prompt; do not type it twice. Press `;` for more answers or Enter to stop.
+
+## Sample queries and expected results
+```prolog
+?- faculty_schedule(mehta,D,T,S,R).
+D = monday, T = nine, S = ai, R = r101 ;
+D = tuesday, T = ten, S = ai, R = r101.
+?- subject_room(database,D,T,R).
+D = monday, T = ten, R = r102.
+?- room_busy(lab1,tuesday,nine).
+true.
+?- room_free(r101,monday,ten).
+true.
+```
+
+## Result
+Faculty, subject, occupied-room and free-room queries are answered from a timetable knowledge base.
+
+## Assumptions and limitations
+The database is an illustrative weekly schedule; it is not an automatic timetable generator. Absence of a booking implies free only within this complete sample database. The included classic_visual_prolog.pro demonstrates the legacy Visual Prolog section format; modern versions need a project-specific port.
+</pre><h3>Complete SWI-Prolog source</h3><pre class="code">% timetable(Day,Time,Subject,Faculty,Room).
+timetable(monday, nine, ai, mehta, r101).
+timetable(monday, ten, database, rao, r102).
+timetable(tuesday, nine, python, sen, lab1).
+timetable(tuesday, ten, ai, mehta, r101).
+timetable(wednesday, eleven, mathematics, sharma, r103).
+faculty_schedule(F,D,T,S,R) :- timetable(D,T,S,F,R).
+subject_room(S,D,T,R) :- timetable(D,T,S,_,R).
+room_busy(R,D,T) :- timetable(D,T,_,_,R).
+% Restrict queries to known slots; negation is checked only after binding.
+day(monday). day(tuesday). day(wednesday).
+slot(nine). slot(ten). slot(eleven).
+room(r101). room(r102). room(r103). room(lab1).
+room_free(R,D,T) :- room(R), day(D), slot(T), \+ room_busy(R,D,T).</pre></section><section id="p5"><h2>05 · Classify students as topper, average, and fail using rule-based reasoning</h2><pre class="notes"># Practical 5: Classify students as topper, average, and fail using rule-based reasoning
+
+## Assignment
+Experiment 5: Create a Prolog program for Student Performance Analysis that identifies toppers, average performers, and failed students using rules.
+
+## Aim and concept
+Rule-based reasoning applies explicit conditions to facts. Disjoint score intervals ensure each valid mark receives exactly one classification.
+
+## Algorithm
+1. Store marks.
+2. Define topper as 85–100, average as 40–below 85, and fail as 0–below 40.
+3. Join student marks with the category rules.
+
+## Run
+Open SWI-Prolog in this folder and enter `[&#x27;solution.pl&#x27;].` Then run the queries below. The `?-` is the console prompt; do not type it twice. Press `;` for more answers or Enter to stop.
+
+## Sample queries and expected results
+```prolog
+?- topper(S).
+S = amit ; S = sara.
+?- average(S).
+S = neha ; S = kiran ; S = isha.
+?- failed(S).
+S = rahul.
+?- category(40,C).
+C = average.
+?- category(85,C).
+C = topper.
+?- category(101,_).
+false.
+```
+
+## Result
+Students are classified into three mutually exclusive categories.
+
+## Assumptions and limitations
+Thresholds are explicitly assumed for this exercise because the workbook does not specify them. Topper means threshold-based high performer, not necessarily the unique highest-scoring student.
+</pre><h3>Complete SWI-Prolog source</h3><pre class="code">marks(amit,92). marks(neha,65). marks(rahul,34).
+marks(sara,85). marks(kiran,40). marks(isha,84).
+category(M,topper) :- number(M), M &gt;= 85, M =&lt; 100.
+category(M,average) :- number(M), M &gt;= 40, M &lt; 85.
+category(M,fail) :- number(M), M &gt;= 0, M &lt; 40.
+performance(S,C) :- marks(S,M), category(M,C).
+topper(S) :- performance(S,topper).
+average(S) :- performance(S,average).
+failed(S) :- performance(S,fail).</pre></section><section id="p6"><h2>06 · Implement Breadth-First Search (BFS) to find the shortest path in a graph</h2><pre class="notes"># Practical 6: Implement Breadth-First Search (BFS) to find the shortest path in a graph
+
+## Assignment
+Experiment 6: Implement a graph traversal algorithm using Breadth-First Search (BFS) in Prolog to find the shortest path between two nodes.
+
+## Aim and concept
+BFS expands the earliest enqueued path first. On an unweighted graph it finds a path with the fewest edges. Nodes are marked seen when enqueued, preventing repeated expansion and cycles.
+
+## Algorithm
+1. Put the start path in a FIFO queue.
+2. Remove the oldest path.
+3. Return if its last node is the goal.
+4. Enqueue paths extended to unseen neighbors.
+5. Fail when the queue is empty.
+
+## Run
+Open SWI-Prolog in this folder and enter `[&#x27;solution.pl&#x27;].` Then run the queries below. The `?-` is the console prompt; do not type it twice. Press `;` for more answers or Enter to stop.
+
+## Sample queries and expected results
+```prolog
+?- bfs(a,g,P).
+P = [a,b,d,g].
+?- bfs(a,a,P).
+P = [a].
+?- bfs(g,a,P).
+false.
+```
+
+## Result
+A shortest path from a to g has three edges. Cycles do not cause infinite traversal.
+
+## Assumptions and limitations
+Edges are directed and unweighted. For undirected graphs add reverse edges. The list-based queue is simple for teaching; repeated append and list membership make it slower than an optimized queue/set implementation.
+</pre><h3>Complete SWI-Prolog source</h3><pre class="code">edge(a,b). edge(a,c). edge(b,d). edge(c,e).
+edge(d,g). edge(e,g). edge(e,a).
+node(a). node(b). node(c). node(d). node(e). node(g).
+bfs(Start,Goal,Path) :- node(Start), node(Goal), queue([[Start]],Goal,[Start],Rev), reverse(Rev,Path).
+queue([[Goal|T]|_],Goal,_,[Goal|T]) :- !.
+queue([[N|T]|Rest],Goal,Seen,Path) :-
+    findall(X,(edge(N,X), \+ memberchk(X,Seen)),Raw),
+    sort(Raw,Children),
+    findall([X,N|T],member(X,Children),NewPaths),
+    append(Rest,NewPaths,Q), append(Seen,Children,Seen1),
+    queue(Q,Goal,Seen1,Path).</pre></section><section id="p7"><h2>07 · Implement Greedy Best-First Search using a heuristic function to find a path in a graph</h2><pre class="notes"># Practical 7: Implement Greedy Best-First Search using a heuristic function to find a path in a graph
+
+## Assignment
+Experiment 7: Implement Greedy Best-First Search in Prolog, using a heuristic function to guide node expansion toward the goal.
+
+## Aim and concept
+Greedy Best-First Search prioritizes the smallest heuristic h(n), ignoring accumulated cost when choosing what to expand. Cost is tracked only to report the resulting route.
+
+## Algorithm
+1. Add the start state with priority h(start).
+2. Remove the lowest-priority state.
+3. Stop at g, or expand unclosed successors.
+4. Sort the frontier by heuristic and repeat.
+
+## Run
+Open SWI-Prolog in this folder and enter `[&#x27;solution.pl&#x27;].` Then run the queries below. The `?-` is the console prompt; do not type it twice. Press `;` for more answers or Enter to stop.
+
+## Sample queries and expected results
+```prolog
+?- greedy(s,g,P,C).
+P = [s,a,g], C = 10.
+?- greedy(g,g,P,C).
+P = [g], C = 0.
+```
+
+## Result
+Greedy chooses a because h(a)=1 is lower than h(b)=3; it returns cost 10 although a cost-5 route exists.
+
+## Assumptions and limitations
+The heuristic is defined for goal g only. Greedy is not guaranteed optimal, even with an admissible heuristic. Edges and heuristic values are illustrative. Each node is expanded at most once; an empty frontier fails.
+</pre><h3>Complete SWI-Prolog source</h3><pre class="code">arc(s,a,2). arc(s,b,1). arc(a,g,8). arc(b,c,2). arc(c,g,2).
+h(s,4). h(a,1). h(b,3). h(c,2). h(g,0).
+
+% Heuristics in this example are estimates to the fixed goal g.
+greedy(Start,g,Path,Cost) :- h(Start,H),
+    greedy_open([H-state(Start,[Start],0)],[],Rev,Cost), reverse(Rev,Path).
+greedy_open([_-state(g,P,C)|_],_,P,C) :- !.
+greedy_open([_-state(N,P,C)|Rest],Closed,Result,Cost) :-
+    ( memberchk(N,Closed) -&gt; greedy_open(Rest,Closed,Result,Cost)
+    ; findall(H-state(X,[X|P],C1),
+          (arc(N,X,W), \+ memberchk(X,[N|Closed]), C1 is C+W, h(X,H)),New),
+      append(Rest,New,All), keysort(All,Sorted),
+      greedy_open(Sorted,[N|Closed],Result,Cost)
+    ).</pre></section><section id="p8"><h2>08 · Implement the A* Search algorithm to find the optimal path using path cost and heuristic estimate</h2><pre class="notes"># Practical 8: Implement the A* Search algorithm to find the optimal path using path cost and heuristic estimate
+
+## Assignment
+Experiment 8: Implement the A* Search algorithm in Prolog, combining path cost (g) and heuristic estimate (h) to find the optimal path.
+
+## Aim and concept
+A* ranks states by f(n)=g(n)+h(n). It stores the cheapest discovered cost for each node, skips stale entries and reopens nodes when a cheaper route is discovered.
+
+## Algorithm
+1. Initialize the start with g=0.
+2. Pop minimum f.
+3. Discard stale entries.
+4. Return when the goal is popped.
+5. Relax outgoing edges, retaining only cost improvements.
+6. Re-sort the frontier.
+
+## Run
+Open SWI-Prolog in this folder and enter `[&#x27;solution.pl&#x27;].` Then run the queries below. The `?-` is the console prompt; do not type it twice. Press `;` for more answers or Enter to stop.
+
+## Sample queries and expected results
+```prolog
+?- astar(s,g,P,C).
+P = [s,b,c,g], C = 5.
+?- astar(g,g,P,C).
+P = [g], C = 0.
+```
+
+## Result
+A* finds cost 5 on the same graph where Greedy returns cost 10. The expansion sequence is s, a, b, c, g.
+
+## Assumptions and limitations
+The supplied heuristic is admissible and consistent for goal g, and edge costs are nonnegative. These conditions justify optimality here. h(s)=4 ≤ true cost 5; h(a)=1 ≤ 8; h(b)=3 = 3; h(c)=2 = 2. Do not reuse these heuristic values for a different goal.
+</pre><h3>Complete SWI-Prolog source</h3><pre class="code">arc(s,a,2). arc(s,b,1). arc(a,g,8). arc(b,c,2). arc(c,g,2).
+h(s,4). h(a,1). h(b,3). h(c,2). h(g,0).
+
+astar(Start,g,Path,Cost) :- h(Start,H),
+    astar_open([H-state(Start,[Start],0)],[Start-0],Rev,Cost), reverse(Rev,Path).
+astar_open([_-state(N,P,G)|Rest],Best,Path,Cost) :-
+    memberchk(N-Known,Best),
+    ( G &gt; Known -&gt; astar_open(Rest,Best,Path,Cost)
+    ; N == g -&gt; Path=P, Cost=G
+    ; findall(X-W,arc(N,X,W),Children),
+      relax(Children,P,G,Rest,Best,Open1,Best1),
+      keysort(Open1,Sorted), astar_open(Sorted,Best1,Path,Cost)
+    ).
+relax([],_,_,Open,Best,Open,Best).
+relax([X-W|Xs],P,G,Open,Best,Final,FinalBest) :-
+    G1 is G+W,
+    ( memberchk(X-Old,Best), Old =&lt; G1 -&gt; Open1=Open, Best1=Best
+    ; h(X,H), F is G1+H,
+      Open1=[F-state(X,[X|P],G1)|Open],
+      ( select(X-_,Best,Tail) -&gt; Best1=[X-G1|Tail] ; Best1=[X-G1|Best] )
+    ),
+    relax(Xs,P,G,Open1,Best1,Final,FinalBest).</pre></section><section id="p9"><h2>09 · Implement Hill Climbing for optimization problems</h2><pre class="notes"># Practical 9: Implement Hill Climbing for optimization problems
+
+## Assignment
+Experiment 9: Implement the Hill Climbing Algorithm to find the optimum solution for a numerical optimization problem.
+
+## Aim and concept
+Hill climbing moves to the best adjacent state only when its value is strictly better. This finite one-dimensional objective has a local maximum at x=2 and a global maximum at x=8.
+
+## Algorithm
+1. Start at a valid integer x.
+2. Evaluate x−1 and x+1 within the domain.
+3. Move to the highest-scoring neighbor if it improves the score.
+4. Stop otherwise.
+
+## Run
+Open SWI-Prolog in this folder and enter `[&#x27;solution.pl&#x27;].` Then run the queries below. The `?-` is the console prompt; do not type it twice. Press `;` for more answers or Enter to stop.
+
+## Sample queries and expected results
+```prolog
+?- hill_climb(0,X,V,T).
+X = 2, V = 6, T = [0,1,2].
+?- hill_climb(5,X,V,T).
+X = 8, V = 12, T = [5,6,7,8].
+```
+
+## Result
+From 0, hill climbing stops at the local maximum 2. Starting at 5 reaches the global maximum 8.
+
+## Assumptions and limitations
+The numeric objective is an explicitly tabulated function, not a real dataset. Strict improvement guarantees termination on this finite domain, but not global optimality. Ties choose the larger x due to term sorting.
+</pre><h3>Complete SWI-Prolog source</h3><pre class="code">% Maximize this finite numerical objective over integer x in [0,10].
+score(0,0). score(1,3). score(2,6). score(3,5). score(4,4).
+score(5,5). score(6,7). score(7,9). score(8,12). score(9,10). score(10,8).
+neighbor(X,Y) :- Y is X-1, Y &gt;= 0.
+neighbor(X,Y) :- Y is X+1, Y =&lt; 10.
+hill_climb(Start,Best,Value,Trace) :- integer(Start), score(Start,_), climb(Start,Best,Value,Trace).
+climb(X,Best,Value,[X|Tail]) :-
+    score(X,V), findall(S-Y,(neighbor(X,Y),score(Y,S)),Candidates),
+    keysort(Candidates,Sorted), last(Sorted,NextValue-Next),
+    ( NextValue &gt; V -&gt; climb(Next,Best,Value,Tail)
+    ; Best=X, Value=V, Tail=[] ).</pre></section><section id="p10"><h2>10 · Solve an optimization problem using Simulated Annealing to escape local optima</h2><pre class="notes"># Practical 10: Solve an optimization problem using Simulated Annealing to escape local optima
+
+## Assignment
+Experiment 10: Implement Simulated Annealing in Prolog and compare its ability to escape local optima against plain Hill Climbing.
+
+## Aim and concept
+Simulated annealing can accept a downhill move with probability exp((new−current)/T) for maximization. High temperature favors exploration; cooling reduces that probability. The best visited state is retained separately from the current state.
+
+## Algorithm
+1. Use the same landscape and start as Practical 9.
+2. Pick a random neighbor.
+3. Always accept an equal/better candidate; probabilistically accept a worse one.
+4. Update the best visited state.
+5. Cool by 0.99 and stop after 500 moves.
+6. Compare five seeded runs with hill climbing.
+
+## Run
+Open SWI-Prolog in this folder and enter `[&#x27;solution.pl&#x27;].` Then run the queries below. The `?-` is the console prompt; do not type it twice. Press `;` for more answers or Enter to stop.
+
+## Sample queries and expected results
+```prolog
+?- hill_climb(0,X,V,_).
+X = 2, V = 6.
+?- anneal(0,42,B,V,Trace), length(Trace,N).
+% N = 501. B and V depend on the pseudo-random run.
+% Global best, if reached: B = 8, V = 12.
+?- compare.
+% Prints hill-climbing result followed by five measured seeded runs.
+```
+
+## Result
+Annealing can cross the valley at x=3 and x=4 to escape x=2. Use compare/0 to observe actual run outcomes; no stochastic success is guaranteed.
+
+## Assumptions and limitations
+Fixed seeds aid reproducibility within a runtime, but outputs may differ across versions. The trace includes rejected steps as repeated states. The reported result is the best visited point, not necessarily the final point. The finite budget does not prove global optimality.
+</pre><h3>Complete SWI-Prolog source</h3><pre class="code">:- use_module(library(random)).
+
+
+% Maximize this finite numerical objective over integer x in [0,10].
+score(0,0). score(1,3). score(2,6). score(3,5). score(4,4).
+score(5,5). score(6,7). score(7,9). score(8,12). score(9,10). score(10,8).
+neighbor(X,Y) :- Y is X-1, Y &gt;= 0.
+neighbor(X,Y) :- Y is X+1, Y =&lt; 10.
+hill_climb(Start,Best,Value,Trace) :- integer(Start), score(Start,_), climb(Start,Best,Value,Trace).
+climb(X,Best,Value,[X|Tail]) :-
+    score(X,V), findall(S-Y,(neighbor(X,Y),score(Y,S)),Candidates),
+    keysort(Candidates,Sorted), last(Sorted,NextValue-Next),
+    ( NextValue &gt; V -&gt; climb(Next,Best,Value,Tail)
+    ; Best=X, Value=V, Tail=[] ).
+
+% Accept worse candidates with probability exp(delta / temperature).
+anneal(Start,Seed,Best,Value,Trace) :-
+    integer(Start), score(Start,V), integer(Seed), set_random(seed(Seed)),
+    anneal_loop(500,10.0,Start,V,Start,V,Best,Value,Trace).
+anneal_loop(0,_,X,V,B,BV,B,BV,[step(X,V)]) :- !.
+anneal_loop(K,T,X,V,B,BV,Best,Value,[step(X,V)|Tail]) :-
+    K &gt; 0, findall(Y,neighbor(X,Y),Ys), random_member(Candidate,Ys),
+    score(Candidate,CV), Delta is CV-V,
+    ( Delta &gt;= 0 -&gt; NX=Candidate, NV=CV
+    ; R is random_float,
+      ( R &lt; exp(Delta/T) -&gt; NX=Candidate, NV=CV ; NX=X, NV=V ) ),
+    ( NV &gt; BV -&gt; NB=NX, NBV=NV ; NB=B, NBV=BV ),
+    K1 is K-1, T1 is max(0.001,T*0.99),
+    anneal_loop(K1,T1,NX,NV,NB,NBV,Best,Value,Tail).
+compare :-
+    hill_climb(0,H,HV,_), format(&#x27;Hill climbing: x=~w, value=~w~n&#x27;,[H,HV]),
+    forall(between(1,5,Seed),
+       (anneal(0,Seed,B,V,_), format(&#x27;Annealing seed ~w: x=~w, value=~w~n&#x27;,[Seed,B,V]))).</pre></section><section id="p11"><h2>11 · Represent a Map-Coloring problem as a CSP and solve it using backtracking search</h2><pre class="notes"># Practical 11: Represent a Map-Coloring problem as a CSP and solve it using backtracking search
+
+## Assignment
+Experiment 11: Represent the Map-Coloring problem in Prolog as a CSP and solve it using backtracking search.
+
+## Aim and concept
+A constraint satisfaction problem has variables (regions), domains (three colors), and constraints (adjacent regions differ). Prolog backtracking tries alternative assignments when a constraint fails.
+
+## Algorithm
+1. Assign WA and NT and test their edge.
+2. Assign each next region and immediately test edges to assigned neighbors.
+3. Backtrack when a conflict occurs.
+4. Assign Tasmania, which has no land-border constraints in this model.
+
+## Run
+Open SWI-Prolog in this folder and enter `[&#x27;solution.pl&#x27;].` Then run the queries below. The `?-` is the console prompt; do not type it twice. Press `;` for more answers or Enter to stop.
+
+## Sample queries and expected results
+```prolog
+?- once(map_coloring(M)).
+M = [wa-red,nt-green,sa-blue,q-red,nsw-green,v-red,t-red].
+?- findall(M,map_coloring(M),Ms), length(Ms,N).
+N = 18.
+```
+
+## Result
+All land-adjacent regions have different colors. There are 18 assignments when color labels are distinct and Tasmania can use any color.
+
+## Assumptions and limitations
+The map uses WA–NT, WA–SA, NT–SA, NT–Q, SA–Q, SA–NSW, SA–V, Q–NSW and NSW–V. Island Tasmania is unconstrained. Ground inequality is applied only after color choices are bound.
+</pre><h3>Complete SWI-Prolog source</h3><pre class="code">color(red). color(green). color(blue).
+% Australian regions: WA, NT, SA, Q, NSW, V, T.
+map_coloring([wa-WA,nt-NT,sa-SA,q-Q,nsw-NSW,v-V,t-T]) :-
+    color(WA), color(NT), WA \= NT,
+    color(SA), SA \= WA, SA \= NT,
+    color(Q), Q \= NT, Q \= SA,
+    color(NSW), NSW \= SA, NSW \= Q,
+    color(V), V \= SA, V \= NSW,
+    color(T).</pre></section><section id="p12"><h2>12 · Solve the N-Queens problem using backtracking to satisfy CSP constraints</h2><pre class="notes"># Practical 12: Solve the N-Queens problem using backtracking to satisfy CSP constraints
+
+## Assignment
+Experiment 12: Implement the N-Queens problem in Prolog using backtracking, ensuring no two queens attack each other.
+
+## Aim and concept
+Place one queen per row. Selecting from unused columns prevents column conflicts. A pair of queens attacks diagonally when the absolute column difference equals their row distance.
+
+## Algorithm
+1. Create available columns 1 through N.
+2. Pick an unused column for the next row.
+3. Check its diagonals against previous rows.
+4. Recurse or backtrack until all rows are assigned.
+
+## Run
+Open SWI-Prolog in this folder and enter `[&#x27;solution.pl&#x27;].` Then run the queries below. The `?-` is the console prompt; do not type it twice. Press `;` for more answers or Enter to stop.
+
+## Sample queries and expected results
+```prolog
+?- n_queens(4,Q).
+Q = [2,4,1,3] ; Q = [3,1,4,2].
+?- n_queens(2,_).
+false.
+?- findall(Q,n_queens(8,Q),Qs), length(Qs,Count).
+Count = 92.
+?- once(n_queens(4,Q)), print_board(Q).
+. Q . .
+. . . Q
+Q . . .
+. . Q .
+Q = [2,4,1,3].
+```
+
+## Result
+Backtracking finds valid N-Queens arrangements; N=4 has two solutions and N=8 has 92 when rotations/reflections are counted separately.
+
+## Assumptions and limitations
+N must be a bound integer ≥1. N=2 and N=3 have no solutions. The basic backtracking method becomes expensive for large N. The list contains columns in increasing row order.
+</pre><h3>Complete SWI-Prolog source</h3><pre class="code">% Row position in the list is the row number; its value is the column.
+n_queens(N,Columns) :- integer(N), N &gt;= 1,
+    numlist(1,N,Available), place(Available,[],Columns).
+place([],_,[]).
+place(Available,Previous,[C|Rest]) :-
+    select(C,Available,Remaining),
+    safe(C,Previous,1),
+    place(Remaining,[C|Previous],Rest).
+safe(_,[],_).
+safe(C,[P|Ps],Distance) :-
+    abs(C-P) =\= Distance,
+    Next is Distance+1, safe(C,Ps,Next).
+print_board(Columns) :- length(Columns,N),
+    forall(member(C,Columns),
+       (forall(between(1,N,J),(J =:= C -&gt; write(&#x27;Q &#x27;) ; write(&#x27;. &#x27;))),nl)).</pre></section></main></html>
